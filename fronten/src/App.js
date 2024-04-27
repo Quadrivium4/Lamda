@@ -29,18 +29,20 @@ const setUpFacebookLogin = async() =>{
   console.log({FB})
   return {
     FB: window.FB,
-    login: () => window.FB.login(function (response) {
-      if (response.authResponse) {
-        console.log('Welcome!  Fetching your information.... ');
-        window.FB.api('/me', { fields: 'name, email' }, function (response) {
-          console.log({ response })
-        });
-      } else {
-        console.log(response)
-        console.log('User cancelled login or did not fully authorize.');
-      }
-    }, { config_id: "1288179395434347" })
-  };
+    login: () => new Promise((resolve, reject)=>{ 
+       window.FB.login(function (response) {
+        if (response.authResponse) {
+          console.log('Welcome!  Fetching your information.... ');
+          window.FB.api('/me', { fields: 'name, email' }, function (response) {
+            resolve(response)
+          });
+        } else {
+          reject(response)
+          console.log('User cancelled login or did not fully authorize.');
+        }
+      }, { config_id: "1288179395434347" })
+    })
+  }
 }
 const useFacebook = () => {
   const [state, setState] = useState({FB: null, login: null});
@@ -50,13 +52,17 @@ const useFacebook = () => {
   return state;
 }
 function App() {
-  const [accessToken, setAccessToken] = useState();
+  //const [accessToken, setAccessToken] = useState();
   const [name, setName] = useState();
-  const {FB, login} = useFacebook();
+  const {login} = useFacebook();
   return (
     <div className="App">
       <h1>{name?"Hi " +  name + "!" : "Login Please"}</h1>
-      {login? <button onClick={login}>login with facebook</button> : <p>loading...</p>}
+      {login? <button onClick={() =>{
+        login().then(res =>{
+          setName(res.name)
+        })
+        }}>login with facebook</button> : <p>loading...</p>}
     </div>
   );
 }
