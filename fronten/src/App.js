@@ -1,5 +1,4 @@
-import logo from './logo.svg';
-import FacebookLogin from "react-facebook-login"
+
 import './App.css';
 import { useEffect, useState } from 'react';
 const insertScriptHead = ({ name, src }) => {
